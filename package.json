@@ -1,0 +1,8 @@
+{
+  "name": "mergeforge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-only student PDF assembly for GitHub Pages",
+  "scripts": { "test": "node --test tests/core.test.mjs" }
+}

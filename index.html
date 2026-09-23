@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Combine notebook photos, scans, and typed work into one correctly ordered PDF. Free, private, and entirely on your device.">
+  <meta name="theme-color" content="#10161d">
+  <meta name="color-scheme" content="dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' blob:; connect-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>MergeFORGE · One PDF. Ready to submit.</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23101a24'/%3E%3Cpath d='m5 12 11-6 11 6-11 6z' fill='none' stroke='%236bccff' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='m5 18 11 6 11-6' fill='none' stroke='%23ff823f' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="vendor/Sortable.min.js"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#workspace">Skip to workspace</a>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="MergeFORGE home"><span class="brand-mark" data-icon="layers" aria-hidden="true"></span><span class="wordmark"><span class="merge">Merge</span><span class="forge">FORGE</span></span></a>
+    <span class="header-note"><span data-icon="shield"></span><span>Your files. Your device.</span></span>
+  </header>
+  <main id="workspace" tabindex="-1">
+    <nav class="steps" aria-label="PDF steps">
+      <button data-step="add" aria-current="step"><span>1</span>Add files</button>
+      <button data-step="files" disabled><span>2</span>Arrange files</button>
+      <button data-step="pages" disabled><span>3</span>Arrange pages</button>
+      <button data-step="preview" disabled><span>4</span>Preview</button>
+      <button data-step="merge" disabled><span>5</span>Merge</button>
+    </nav>
+    <div class="intro"><div><p class="eyebrow">A LITTLE ORDER. ALL YOUR WORK.</p><h1 id="step-title">Bring all your work together.</h1><p id="step-subtitle">Notebook photos, scans, and typed work. Start with what you have.</p></div><button class="secondary add-more"><span data-icon="plus"></span>Add files</button></div>
+    <aside class="word-note" aria-label="Importing Word documents"><span class="word-icon" data-icon="document"></span><div><strong>Working in Word?</strong><p>Export your document as a PDF, then import that PDF here.</p></div></aside>
+    <div id="notices" aria-live="polite"></div>
+    <div id="progress-panel" class="progress-panel" role="status" hidden><span id="progress-text">Getting ready…</span><progress id="progress" max="100"></progress></div>
+    <div id="undo-notice" class="undo-notice" role="status" hidden><span>Page removed.</span><button id="undo-delete" class="text-button">Undo</button></div>
+    <section id="add-view" class="view">
+      <div class="section-top"><div class="section-title"><span data-icon="upload"></span><h2>Add your files</h2></div><span class="step-caption">Photos + PDFs → one submission</span></div>
+      <div id="dropzone" class="dropzone">
+        <div class="upload-icon" data-icon="upload"></div><h3>Drop your files here</h3><p>Notebook photos, scans, and saved PDFs.</p>
+        <button id="add-files" class="primary"><span data-icon="plus"></span>Add files & photos</button>
+        <p class="formats">PDF, JPG, JPEG, PNG · Select several at once</p>
+      </div>
+      <div id="added-summary" class="added-summary" hidden></div>
+      <div class="add-footer"><span>You can fix the order and rotate pages next.</span><button id="to-files" class="primary" disabled>Arrange files <span data-icon="right"></span></button></div>
+    </section>
+    <section id="files-view" class="view" hidden>
+      <div class="section-top"><div class="section-title"><span data-icon="layers"></span><h2>Your files</h2><span id="file-count" class="count"></span></div><span class="step-caption"><span data-icon="grip"></span>Grab a handle to rearrange</span></div>
+      <p id="file-order-note" class="soft-note" hidden>Your individual page order is kept. Moving a file will regroup all remaining pages into the file order shown here. Rotations and deletions are kept.</p>
+      <div id="file-list" class="file-list" role="list" aria-label="Files in order"></div>
+      <p class="panel-tip"><span data-icon="bulb"></span>Start with whole files. You can fine-tune individual pages next.</p>
+    </section>
+    <section id="pages-view" class="view" hidden>
+      <div class="section-top"><div class="section-title"><span data-icon="grid"></span><h2>Your page order</h2><span id="page-count" class="count"></span></div><span class="step-caption"><span data-icon="grip"></span>Grab a handle to rearrange</span></div>
+      <div id="page-list" class="page-list" role="list" aria-label="Pages in final order"></div>
+      <p class="panel-tip"><span data-icon="bulb"></span>Photos taken out of order? Move them here. Read left to right, top to bottom.</p>
+    </section>
+    <section id="preview-view" class="view" hidden>
+      <div class="section-top"><div class="section-title"><span data-icon="document"></span><h2>Your final PDF</h2></div><button id="edit-pages" class="secondary compact">Edit pages</button></div>
+      <div class="preview-layout"><div class="preview-paper"><canvas id="preview-canvas" aria-label="Final PDF page preview"></canvas><p id="preview-error" hidden></p></div><aside class="preview-aside"><span class="final-label">YOUR FINAL PDF</span><h3 id="preview-total"></h3><p id="preview-source"></p><div class="preview-nav"><button id="preview-prev" class="icon-button" aria-label="Previous preview page" data-icon="left"></button><label>Page <input id="preview-page" type="number" min="1" value="1" aria-label="Preview page number"></label><button id="preview-next" class="icon-button" aria-label="Next preview page" data-icon="right"></button></div><p id="preview-caption" class="small"></p><div class="preview-tip"><span data-icon="check"></span><p>Everything shown here is exactly what goes into your download.</p></div></aside></div>
+    </section>
+    <section id="merge-view" class="view" hidden>
+      <div id="merge-settings"><div class="upload-icon" data-icon="document"></div><h2>Make it easy to find.</h2><p>A clear filename makes your work easy to find.</p><label class="filename-label" for="filename">PDF filename</label><div class="filename-wrap"><input id="filename" type="text" value="My_Assignment" maxlength="120" spellcheck="false" autocomplete="off"><span>.pdf</span></div><p class="small">For example: LastName_Lab3</p><div id="merge-summary" class="merge-summary"></div><button id="merge-button" class="primary large"><span data-icon="layers"></span>MERGE INTO ONE PDF</button></div>
+      <div id="success" class="success" hidden><div class="success-icon" data-icon="check"></div><p class="eyebrow">ALL TOGETHER. ALL SET.</p><h2>Your PDF is ready.</h2><p id="success-message"></p><a id="download" class="primary large" download><span data-icon="download"></span>Download PDF</a><p id="download-details" class="small"></p><p class="submission-note">Next: upload your finished PDF to your assignment.</p><button id="back-edit" class="text-button">Go back and edit</button></div>
+    </section>
+    <div id="workflow-footer" class="workflow-footer" hidden><div class="equation"><span class="file-stack" data-icon="layers"></span><div><strong id="document-count"></strong><span id="footer-hint">Your order, your PDF.</span></div></div><div class="footer-actions"><button id="back" class="quiet">Back</button><button id="next" class="primary">Arrange pages <span data-icon="right"></span></button></div></div>
+    <div class="utility"><span id="session-note">Local to this tab. Download before you close it.</span><button id="reset" class="text-button" disabled>Start over</button></div>
+  </main>
+  <footer class="site-footer"><span class="privacy"><span data-icon="lock"></span><span>Your files stay on your device while you work. When you’re ready, download your PDF and upload it.</span></span><span>MergeFORGE <span class="version">v0.1</span></span></footer>
+  <input id="file-input" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" multiple hidden>
+  <p id="live" class="sr-only" role="status" aria-live="polite"></p>
+  <dialog id="reset-dialog"><h2>Start a fresh PDF?</h2><p>This clears the files and page edits in this tab. Download your finished PDF first if you need it.</p><form method="dialog"><button value="cancel" class="secondary" autofocus>Keep working</button><button value="reset" class="primary">Start over</button></form></dialog>
+  <noscript><p class="notice">MergeFORGE needs JavaScript enabled to combine files on your device.</p></noscript>
+</body>
+</html>
